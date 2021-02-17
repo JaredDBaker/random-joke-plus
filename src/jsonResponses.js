@@ -33,18 +33,18 @@ const getRandomJokesJSON = (limit = 1) => {
   max = !limit ? 1 : max;
   max = limit < 1 ? 1 : max;
   let temp = under.shuffle(jokes);
-  let shuffled = [];
+  const shuffled = [];
   let i = 0;
   while (i < max) {
     shuffled.push(temp[i % temp.length]);
-    i += 1; 
-    if (i % temp.length === 0) {temp = under.shuffle(jokes);}
+    i += 1;
+    if (i % temp.length === 0) { temp = under.shuffle(jokes); }
   }
 
   return JSON.stringify(shuffled);
 };
 
-const getRandomJokeResponse = (request, response, params) => {
+const getRandomJokeResponse = (request, response) => {
   response.writeHead(200, { 'Content-Type': 'application/json' });
   response.write(getRandomJokeJSON());
   response.end();
@@ -58,5 +58,5 @@ const getRandomJokesResponse = (request, response, params) => {
 
 module.exports = {
   getRandomJokeResponse,
-  getRandomJokesResponse
+  getRandomJokesResponse,
 };
