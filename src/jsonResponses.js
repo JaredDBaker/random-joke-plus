@@ -22,7 +22,12 @@ const jokes = [
 
 // 6 - this will return a random number no bigger than `max`, as a string
 // we will also doing our query parameter validation here
-const getRandomJokeJSON = (limit = 1) => {
+const getRandomJokeJSON = () => {
+  const number = Math.floor(Math.random() * jokes.length);
+  return JSON.stringify(jokes[number]);
+};
+
+const getRandomJokesJSON = (limit = 1) => {
   let max = Number(limit);
   max = Math.floor(max);
   max = !limit ? 1 : max;
@@ -41,10 +46,17 @@ const getRandomJokeJSON = (limit = 1) => {
 
 const getRandomJokeResponse = (request, response, params) => {
   response.writeHead(200, { 'Content-Type': 'application/json' });
-  response.write(getRandomJokeJSON(params.limit));
+  response.write(getRandomJokeJSON());
+  response.end();
+};
+
+const getRandomJokesResponse = (request, response, params) => {
+  response.writeHead(200, { 'Content-Type': 'application/json' });
+  response.write(getRandomJokesJSON(params.limit));
   response.end();
 };
 
 module.exports = {
   getRandomJokeResponse,
+  getRandomJokesResponse
 };

@@ -15,6 +15,7 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const urlStruct = {
   '/random-joke': jsonHandler.getRandomJokeResponse,
+  '/random-jokes': jsonHandler.getRandomJokesResponse,
   notFound: htmlHandler.get404Response,
 };
 
