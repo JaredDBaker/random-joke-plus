@@ -22,12 +22,21 @@ const jokes = [
 
 // 6 - this will return a random number no bigger than `max`, as a string
 // we will also doing our query parameter validation here
-const getRandomJokeJSON = () => {
+const getRandomJokeJSON = (xml) => {
   const number = Math.floor(Math.random() * jokes.length);
+  if (xml) {
+    const responseXML = `
+    <joke>
+      <q>${jokes[number].q}</q>
+      <a>${jokes[number].a}</a>
+    </joke>
+  `;
+    return responseXML;
+  }
   return JSON.stringify(jokes[number]);
 };
 
-const getRandomJokesJSON = (limit = 1) => {
+const getRandomJokesJSON = (limit = 1, xml) => {
   let max = Number(limit);
   max = Math.floor(max);
   max = !limit ? 1 : max;
@@ -40,19 +49,43 @@ const getRandomJokesJSON = (limit = 1) => {
     i += 1;
     if (i % temp.length === 0) { temp = under.shuffle(jokes); }
   }
-
+  if (xml) {
+    let responseXML = '<jokes>';
+    let j = 0;
+    while (j < shuffled.length - 1) {
+      responseXML = `${responseXML} <joke>`;
+      responseXML = `${responseXML} <q>${jokes[j].q}</q>`;
+      responseXML = `${responseXML} <a>${jokes[j].a}</a>`;
+      responseXML = `${responseXML} </joke>`;
+      j += 1;
+    }
+    responseXML = `${responseXML} </jokes>`;
+    return responseXML;
+  }
   return JSON.stringify(shuffled);
 };
 
-const getRandomJokeResponse = (request, response) => {
-  response.writeHead(200, { 'Content-Type': 'application/json' });
-  response.write(getRandomJokeJSON());
+const getRandomJokeResponse = (request, response, acceptedTypes) => {
+  if (acceptedTypes.includes('text/xml')) {
+    response.writeHead(200, { 'Content-Type': 'text/xml' });
+    response.write(getRandomJokeJSON(true));
+  } else {
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.write(getRandomJokeJSON(false));
+  }
+
   response.end();
 };
 
-const getRandomJokesResponse = (request, response, params) => {
-  response.writeHead(200, { 'Content-Type': 'application/json' });
-  response.write(getRandomJokesJSON(params.limit));
+const getRandomJokesResponse = (request, response, acceptedTypes, params) => {
+  if (acceptedTypes.includes('text/xml')) {
+    response.writeHead(200, { 'Content-Type': 'text/xml' });
+    response.write(getRandomJokesJSON(params.limit, true));
+  } else {
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.write(getRandomJokesJSON(params.limit, false));
+  }
+
   response.end();
 };
 
