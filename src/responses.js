@@ -1,5 +1,10 @@
 const under = require('underscore');
 
+// ALWAYS GIVE CREDIT - in your code comments and documentation
+// Source: https://stackoverflow.com/questions/2219526/how-many-bytes-in-a-javascript-string/29955838
+// Refactored to an arrow function by ACJ
+const getBinarySize = (string) => Buffer.byteLength(string, 'utf8');
+
 // Jokes array
 const jokes = [
   { q: 'What do you call a very small valentine?????', a: 'A valen-tiny!' },
@@ -52,7 +57,7 @@ const getRandomJokesJSON = (limit = 1, xml) => {
   if (xml) {
     let responseXML = '<jokes>';
     let j = 0;
-    while (j < shuffled.length - 1) {
+    while (j < shuffled.length) {
       responseXML = `${responseXML} <joke>`;
       responseXML = `${responseXML} <q>${jokes[j].q}</q>`;
       responseXML = `${responseXML} <a>${jokes[j].a}</a>`;
@@ -65,7 +70,17 @@ const getRandomJokesJSON = (limit = 1, xml) => {
   return JSON.stringify(shuffled);
 };
 
-const getRandomJokeResponse = (request, response, acceptedTypes) => {
+const getRandomJokeResponse = (request, response, params, acceptedTypes, httpMethod) => {
+  if (httpMethod === 'HEAD') {
+    if (acceptedTypes.includes('text/xml')) {
+      response.writeHead(200, { 'Content-Type': 'text/xml', 'Content-Length': getBinarySize(getRandomJokeJSON(true)) });
+    } else {
+      response.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': getBinarySize(getRandomJokeJSON(false)) });
+    }
+    response.end();
+    return;
+  }
+
   if (acceptedTypes.includes('text/xml')) {
     response.writeHead(200, { 'Content-Type': 'text/xml' });
     response.write(getRandomJokeJSON(true));
@@ -77,7 +92,17 @@ const getRandomJokeResponse = (request, response, acceptedTypes) => {
   response.end();
 };
 
-const getRandomJokesResponse = (request, response, acceptedTypes, params) => {
+const getRandomJokesResponse = (request, response, params, acceptedTypes, httpMethod) => {
+  if (httpMethod === 'HEAD') {
+    if (acceptedTypes.includes('text/xml')) {
+      response.writeHead(200, { 'Content-Type': 'text/xml', 'Content-Length': getBinarySize(getRandomJokesJSON(params.limit, true)) });
+    } else {
+      response.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': getBinarySize(getRandomJokesJSON(params.limit, false)) });
+    }
+    response.end();
+    return;
+  }
+
   if (acceptedTypes.includes('text/xml')) {
     response.writeHead(200, { 'Content-Type': 'text/xml' });
     response.write(getRandomJokesJSON(params.limit, true));
